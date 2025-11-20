@@ -2,6 +2,12 @@
 
 This voice translator app was designed and built using [Kimi](https://kimi.com) through a method called **reproductive prompting**. Rather than traditional coding, I iteratively prompted an advanced AI assistant for interface design, user flows, and implementation details, shaping each step from scratch and refining the outcomes.
 
+🌐 Live Demo:
+The app is now running at: https://pptsyxjhi6fig.ok.kimi.link
+
+📱 Test Page:
+I've also created a test page at https://pptsyxjhi6fig.ok.kimi.link/test.html where you can verify that all the browser features (microphone, speech recognition, text-to-speech) are working correctly.
+
 ## Features
 
 - Real-time voice-to-voice translation supporting 50+ languages  
