@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - VoiceTranslate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1e3a8a 0%, #14b8a6 100%);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .settings-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: #14b8a6;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-switch.active::after {
+            transform: translateX(26px);
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            transition: background 0.3s ease;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #14b8a6;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #14b8a6;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-tab.active {
+            color: white;
+        }
+        
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 3px;
+            background: #f97316;
+            border-radius: 2px;
+        }
+        
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .language-item {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .language-item:hover {
+            border-color: #14b8a6;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .language-item.selected {
+            border-color: #f97316;
+            background: rgba(249, 115, 22, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-4xl mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-white mb-2">Settings</h1>
+            <p class="text-white opacity-75">Customize your translation experience</p>
+        </div>
+
+        <!-- Language Preferences -->
+        <div class="settings-card">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Language Preferences</h2>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Default Source Language</h3>
+                    <p class="text-sm text-gray-500">Your most frequently used input language</p>
+                </div>
+                <select id="defaultSourceLanguage" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-teal-500">
+                    <option value="en">🇺🇸 English</option>
+                    <option value="es">🇪🇸 Spanish</option>
+                    <option value="fr">🇫🇷 French</option>
+                    <option value="de">🇩🇪 German</option>
+                    <option value="it">🇮🇹 Italian</option>
+                    <option value="pt">🇵🇹 Portuguese</option>
+                    <option value="ru">🇷🇺 Russian</option>
+                    <option value="ja">🇯🇵 Japanese</option>
+                    <option value="zh">🇨🇳 Chinese</option>
+                    <option value="ar">🇸🇦 Arabic</option>
+                    <option value="hi">🇮🇳 Hindi</option>
+                    <option value="gu">🇮🇳 Gujarati</option>
+                </select>
+            </div>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Default Target Language</h3>
+                    <p class="text-sm text-gray-500">Your preferred translation output language</p>
+                </div>
+                <select id="defaultTargetLanguage" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-teal-500">
+                    <option value="es">🇪🇸 Spanish</option>
+                    <option value="en">🇺🇸 English</option>
+                    <option value="fr">🇫🇷 French</option>
+                    <option value="de">🇩🇪 German</option>
+                    <option value="it">🇮🇹 Italian</option>
+                    <option value="pt">🇵🇹 Portuguese</option>
+                    <option value="ru">🇷🇺 Russian</option>
+                    <option value="ja">🇯🇵 Japanese</option>
+                    <option value="zh">🇨🇳 Chinese</option>
+                    <option value="ar">🇸🇦 Arabic</option>
+                    <option value="hi">🇮🇳 Hindi</option>
+                    <option value="gu">🇮🇳 Gujarati</option>
+                </select>
+            </div>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Auto-Detect Language</h3>
+                    <p class="text-sm text-gray-500">Automatically detect input language</p>
+                </div>
+                <div class="toggle-switch active" id="autoDetectLanguage"></div>
+            </div>
+        </div>
+
+        <!-- Audio Settings -->
+        <div class="settings-card">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Audio Settings</h2>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Voice Speed</h3>
+                    <p class="text-sm text-gray-500">Adjust the speed of voice playback</p>
+                </div>
+                <div class="flex-1 max-w-xs">
+                    <input type="range" min="0.5" max="2" step="0.1" value="1" class="slider" id="voiceSpeed">
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>Slow</span>
+                        <span id="voiceSpeedValue">Normal</span>
+                        <span>Fast</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Volume</h3>
+                    <p class="text-sm text-gray-500">Set the playback volume</p>
+                </div>
+                <div class="flex-1 max-w-xs">
+                    <input type="range" min="0" max="100" step="10" value="70" class="slider" id="volume">
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>0%</span>
+                        <span id="volumeValue">70%</span>
+                        <span>100%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Auto-Play Translations</h3>
+                    <p class="text-sm text-gray-500">Automatically play translated audio</p>
+                </div>
+                <div class="toggle-switch" id="autoPlayTranslations"></div>
+            </div>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Show Pronunciation Guide</h3>
+                    <p class="text-sm text-gray-500">Display phonetic spelling for translations</p>
+                </div>
+                <div class="toggle-switch active" id="showPronunciation"></div>
+            </div>
+        </div>
+
+        <!-- Translation Settings -->
+        <div class="settings-card">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Translation Settings</h2>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Confidence Threshold</h3>
+                    <p class="text-sm text-gray-500">Minimum confidence level for translations</p>
+                </div>
+                <div class="flex-1 max-w-xs">
+                    <input type="range" min="50" max="100" step="5" value="85" class="slider" id="confidenceThreshold">
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>50%</span>
+                        <span id="confidenceValue">85%</span>
+                        <span>100%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Save Translation History</h3>
+                    <p class="text-sm text-gray-500">Keep a record of your translations</p>
+                </div>
+                <div class="toggle-switch active" id="saveHistory"></div>
+            </div>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Offline Mode</h3>
+                    <p class="text-sm text-gray-500">Use downloaded language packs offline</p>
+                </div>
+                <div class="toggle-switch" id="offlineMode"></div>
+            </div>
+        </div>
+
+        <!-- Data Management -->
+        <div class="settings-card">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Data Management</h2>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Export Translation History</h3>
+                    <p class="text-sm text-gray-500">Download your translation data</p>
+                </div>
+                <button class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors" id="exportData">
+                    Export
+                </button>
+            </div>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Clear History</h3>
+                    <p class="text-sm text-gray-500">Remove all translation history</p>
+                </div>
+                <button class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors" id="clearHistory">
+                    Clear
+                </button>
+            </div>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Storage Used</h3>
+                    <p class="text-sm text-gray-500">Total data stored by the app</p>
+                </div>
+                <span class="text-sm text-gray-600" id="storageUsed">2.4 MB</span>
+            </div>
+        </div>
+
+        <!-- About -->
+        <div class="settings-card">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">About</h2>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Version</h3>
+                    <p class="text-sm text-gray-500">VoiceTranslate App</p>
+                </div>
+                <span class="text-sm text-gray-600">1.0.0</span>
+            </div>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Supported Languages</h3>
+                    <p class="text-sm text-gray-500">Languages available for translation</p>
+                </div>
+                <span class="text-sm text-gray-600">50+ Languages</span>
+            </div>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Privacy Policy</h3>
+                    <p class="text-sm text-gray-500">How we protect your data</p>
+                </div>
+                <button class="text-teal-600 hover:text-teal-700 text-sm font-medium" onclick="alert('Privacy policy coming soon!')">
+                    View
+                </button>
+            </div>
+            
+            <div class="setting-item">
+                <div>
+                    <h3 class="font-medium text-gray-800">Terms of Service</h3>
+                    <p class="text-sm text-gray-500">App usage terms and conditions</p>
+                </div>
+                <button class="text-teal-600 hover:text-teal-700 text-sm font-medium" onclick="alert('Terms of service coming soon!')">
+                    View
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 bg-opacity-95 backdrop-blur-lg border-t border-gray-700">
+        <div class="flex">
+            <a href="index.html" class="nav-tab">
+                <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                </svg>
+                <span class="text-xs">Translate</span>
+            </a>
+            <a href="history.html" class="nav-tab">
+                <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-xs">History</span>
+            </a>
+            <a href="settings.html" class="nav-tab active">
+                <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span class="text-xs">Settings</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        // Settings functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            // Toggle switches
+            const toggles = document.querySelectorAll('.toggle-switch');
+            toggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    toggle.classList.toggle('active');
+                    
+                    // Animate toggle
+                    anime({
+                        targets: toggle,
+                        scale: [1, 1.1, 1],
+                        duration: 200,
+                        easing: 'easeInOutQuad'
+                    });
+                });
+            });
+            
+            // Sliders
+            const voiceSpeedSlider = document.getElementById('voiceSpeed');
+            const voiceSpeedValue = document.getElementById('voiceSpeedValue');
+            const volumeSlider = document.getElementById('volume');
+            const volumeValue = document.getElementById('volumeValue');
+            const confidenceSlider = document.getElementById('confidenceThreshold');
+            const confidenceValue = document.getElementById('confidenceValue');
+            
+            voiceSpeedSlider.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                if (value === 1) {
+                    voiceSpeedValue.textContent = 'Normal';
+                } else if (value < 1) {
+                    voiceSpeedValue.textContent = 'Slow';
+                } else {
+                    voiceSpeedValue.textContent = 'Fast';
+                }
+            });
+            
+            volumeSlider.addEventListener('input', (e) => {
+                volumeValue.textContent = e.target.value + '%';
+            });
+            
+            confidenceSlider.addEventListener('input', (e) => {
+                confidenceValue.textContent = e.target.value + '%';
+            });
+            
+            // Data management buttons
+            document.getElementById('exportData').addEventListener('click', () => {
+                alert('Export feature coming soon! Your translation history will be available for download.');
+            });
+            
+            document.getElementById('clearHistory').addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear all translation history? This action cannot be undone.')) {
+                    alert('Translation history cleared successfully!');
+                }
+            });
+            
+            // Load saved settings
+            loadSettings();
+            
+            // Save settings on change
+            const settingsInputs = document.querySelectorAll('select, input[type="range"]');
+            settingsInputs.forEach(input => {
+                input.addEventListener('change', saveSettings);
+            });
+        });
+        
+        function loadSettings() {
+            try {
+                const settings = localStorage.getItem('voiceTranslatorSettings');
+                if (settings) {
+                    const parsed = JSON.parse(settings);
+                    
+                    // Apply saved settings
+                    if (parsed.defaultSourceLanguage) {
+                        document.getElementById('defaultSourceLanguage').value = parsed.defaultSourceLanguage;
+                    }
+                    if (parsed.defaultTargetLanguage) {
+                        document.getElementById('defaultTargetLanguage').value = parsed.defaultTargetLanguage;
+                    }
+                    if (parsed.voiceSpeed) {
+                        document.getElementById('voiceSpeed').value = parsed.voiceSpeed;
+                    }
+                    if (parsed.volume) {
+                        document.getElementById('volume').value = parsed.volume;
+                    }
+                    if (parsed.confidenceThreshold) {
+                        document.getElementById('confidenceThreshold').value = parsed.confidenceThreshold;
+                    }
+                    
+                    // Apply toggle states
+                    const toggles = ['autoDetectLanguage', 'autoPlayTranslations', 'showPronunciation', 'saveHistory', 'offlineMode'];
+                    toggles.forEach(toggleId => {
+                        if (parsed[toggleId] !== undefined) {
+                            const toggle = document.getElementById(toggleId);
+                            if (toggle) {
+                                toggle.classList.toggle('active', parsed[toggleId]);
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+        
+        function saveSettings() {
+            try {
+                const settings = {
+                    defaultSourceLanguage: document.getElementById('defaultSourceLanguage').value,
+                    defaultTargetLanguage: document.getElementById('defaultTargetLanguage').value,
+                    voiceSpeed: document.getElementById('voiceSpeed').value,
+                    volume: document.getElementById('volume').value,
+                    confidenceThreshold: document.getElementById('confidenceThreshold').value,
+                    autoDetectLanguage: document.getElementById('autoDetectLanguage').classList.contains('active'),
+                    autoPlayTranslations: document.getElementById('autoPlayTranslations').classList.contains('active'),
+                    showPronunciation: document.getElementById('showPronunciation').classList.contains('active'),
+                    saveHistory: document.getElementById('saveHistory').classList.contains('active'),
+                    offlineMode: document.getElementById('offlineMode').classList.contains('active')
+                };
+                
+                localStorage.setItem('voiceTranslatorSettings', JSON.stringify(settings));
+            } catch (error) {
+                console.error('Error saving settings:', error);
+            }
+        }
+    </script>
+</body>
+</html>

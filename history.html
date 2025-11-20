@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - VoiceTranslate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1e3a8a 0%, #14b8a6 100%);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .history-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 12px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .history-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .history-card.favorite {
+            border-left: 4px solid #f97316;
+        }
+        
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 48px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-tab {
+            flex: 1;
+            padding: 8px 16px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-tab.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-tab.active {
+            color: white;
+        }
+        
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 3px;
+            background: #f97316;
+            border-radius: 2px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            opacity: 0.5;
+        }
+        
+        .favorite-button {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .favorite-button:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+        
+        .favorite-button.active {
+            background: #f97316;
+            color: white;
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-4xl mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-white mb-2">Translation History</h1>
+            <p class="text-white opacity-75">Manage your translations and favorites</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-card">
+            <div class="stat-item">
+                <div class="stat-number" id="totalTranslations">24</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="favoriteCount">8</div>
+                <div class="stat-label">Favorites</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="thisWeekCount">12</div>
+                <div class="stat-label">This Week</div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-container">
+            <svg class="search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input type="text" class="search-input" placeholder="Search translations..." id="searchInput">
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <div class="filter-tab active" data-filter="all">All</div>
+            <div class="filter-tab" data-filter="favorites">Favorites</div>
+            <div class="filter-tab" data-filter="today">Today</div>
+            <div class="filter-tab" data-filter="week">This Week</div>
+        </div>
+
+        <!-- History List -->
+        <div id="historyList">
+            <!-- Sample history items -->
+            <div class="history-card favorite" data-timestamp="2025-11-13T10:30:00">
+                <div class="favorite-button active" onclick="toggleFavorite(this, event)">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                </div>
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex-1">
+                        <div class="flex items-center text-sm text-gray-500 mb-1">
+                            <span class="flag">🇺🇸</span>
+                            <span class="mx-2">→</span>
+                            <span class="flag">🇪🇸</span>
+                            <span class="ml-2">2 hours ago</span>
+                        </div>
+                        <h3 class="font-medium text-gray-800 mb-2">Hello world</h3>
+                        <p class="text-lg font-semibold text-teal-600">Hola mundo</p>
+                        <p class="text-sm text-gray-500 mt-1">Pronunciation: OH-lah MOON-doh</p>
+                    </div>
+                </div>
+                <div class="flex space-x-2 mt-3">
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="playAudio(this, event)">
+                        🔊 Play
+                    </button>
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="copyText(this, event)">
+                        📋 Copy
+                    </button>
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="shareTranslation(this, event)">
+                        📤 Share
+                    </button>
+                </div>
+            </div>
+
+            <div class="history-card" data-timestamp="2025-11-13T09:15:00">
+                <div class="favorite-button" onclick="toggleFavorite(this, event)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                </div>
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex-1">
+                        <div class="flex items-center text-sm text-gray-500 mb-1">
+                            <span class="flag">🇺🇸</span>
+                            <span class="mx-2">→</span>
+                            <span class="flag">🇫🇷</span>
+                            <span class="ml-2">3 hours ago</span>
+                        </div>
+                        <h3 class="font-medium text-gray-800 mb-2">Good morning</h3>
+                        <p class="text-lg font-semibold text-teal-600">Bonjour</p>
+                        <p class="text-sm text-gray-500 mt-1">Pronunciation: bohn-ZHOOR</p>
+                    </div>
+                </div>
+                <div class="flex space-x-2 mt-3">
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="playAudio(this, event)">
+                        🔊 Play
+                    </button>
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="copyText(this, event)">
+                        📋 Copy
+                    </button>
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="shareTranslation(this, event)">
+                        📤 Share
+                    </button>
+                </div>
+            </div>
+
+            <div class="history-card favorite" data-timestamp="2025-11-12T14:20:00">
+                <div class="favorite-button active" onclick="toggleFavorite(this, event)">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                </div>
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex-1">
+                        <div class="flex items-center text-sm text-gray-500 mb-1">
+                            <span class="flag">🇺🇸</span>
+                            <span class="mx-2">→</span>
+                            <span class="flag">🇩🇪</span>
+                            <span class="ml-2">Yesterday</span>
+                        </div>
+                        <h3 class="font-medium text-gray-800 mb-2">Thank you very much</h3>
+                        <p class="text-lg font-semibold text-teal-600">Vielen Dank</p>
+                        <p class="text-sm text-gray-500 mt-1">Pronunciation: FEE-len DAHNK</p>
+                    </div>
+                </div>
+                <div class="flex space-x-2 mt-3">
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="playAudio(this, event)">
+                        🔊 Play
+                    </button>
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="copyText(this, event)">
+                        📋 Copy
+                    </button>
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="shareTranslation(this, event)">
+                        📤 Share
+                    </button>
+                </div>
+            </div>
+
+            <div class="history-card" data-timestamp="2025-11-12T11:45:00">
+                <div class="favorite-button" onclick="toggleFavorite(this, event)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                </div>
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex-1">
+                        <div class="flex items-center text-sm text-gray-500 mb-1">
+                            <span class="flag">🇺🇸</span>
+                            <span class="mx-2">→</span>
+                            <span class="flag">🇮🇹</span>
+                            <span class="ml-2">Yesterday</span>
+                        </div>
+                        <h3 class="font-medium text-gray-800 mb-2">How are you?</h3>
+                        <p class="text-lg font-semibold text-teal-600">Come stai?</p>
+                        <p class="text-sm text-gray-500 mt-1">Pronunciation: koh-meh STAH-ee</p>
+                    </div>
+                </div>
+                <div class="flex space-x-2 mt-3">
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="playAudio(this, event)">
+                        🔊 Play
+                    </button>
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="copyText(this, event)">
+                        📋 Copy
+                    </button>
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="shareTranslation(this, event)">
+                        📤 Share
+                    </button>
+                </div>
+            </div>
+
+            <div class="history-card favorite" data-timestamp="2025-11-11T16:30:00">
+                <div class="favorite-button active" onclick="toggleFavorite(this, event)">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                </div>
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex-1">
+                        <div class="flex items-center text-sm text-gray-500 mb-1">
+                            <span class="flag">🇺🇸</span>
+                            <span class="mx-2">→</span>
+                            <span class="flag">🇯🇵</span>
+                            <span class="ml-2">2 days ago</span>
+                        </div>
+                        <h3 class="font-medium text-gray-800 mb-2">I love you</h3>
+                        <p class="text-lg font-semibold text-teal-600">愛しています</p>
+                        <p class="text-sm text-gray-500 mt-1">Pronunciation: ah-ee-shi-teh-ee-mahss</p>
+                    </div>
+                </div>
+                <div class="flex space-x-2 mt-3">
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="playAudio(this, event)">
+                        🔊 Play
+                    </button>
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="copyText(this, event)">
+                        📋 Copy
+                    </button>
+                    <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="shareTranslation(this, event)">
+                        📤 Share
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <h3 class="text-xl font-semibold mb-2">No translations found</h3>
+            <p class="opacity-75">Start translating to build your history</p>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 bg-opacity-95 backdrop-blur-lg border-t border-gray-700">
+        <div class="flex">
+            <a href="index.html" class="nav-tab">
+                <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                </svg>
+                <span class="text-xs">Translate</span>
+            </a>
+            <a href="history.html" class="nav-tab active">
+                <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-xs">History</span>
+            </a>
+            <a href="settings.html" class="nav-tab">
+                <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span class="text-xs">Settings</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        // History functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            setupSearch();
+            setupFilters();
+            loadHistoryStats();
+        });
+
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                filterHistory(query);
+            });
+        }
+
+        function setupFilters() {
+            const filterTabs = document.querySelectorAll('.filter-tab');
+            filterTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Update active tab
+                    filterTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Filter history
+                    const filter = tab.dataset.filter;
+                    filterHistoryByType(filter);
+                    
+                    // Animate tab change
+                    anime({
+                        targets: tab,
+                        scale: [1, 1.05, 1],
+                        duration: 200,
+                        easing: 'easeInOutQuad'
+                    });
+                });
+            });
+        }
+
+        function filterHistory(query) {
+            const historyCards = document.querySelectorAll('.history-card');
+            let visibleCount = 0;
+            
+            historyCards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                const isVisible = text.includes(query);
+                
+                if (isVisible) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                    
+                    // Animate in
+                    anime({
+                        targets: card,
+                        opacity: [0, 1],
+                        translateY: [20, 0],
+                        duration: 300,
+                        easing: 'easeOutQuart'
+                    });
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            toggleEmptyState(visibleCount === 0);
+        }
+
+        function filterHistoryByType(filter) {
+            const historyCards = document.querySelectorAll('.history-card');
+            let visibleCount = 0;
+            
+            historyCards.forEach(card => {
+                let isVisible = false;
+                const timestamp = new Date(card.dataset.timestamp);
+                const now = new Date();
+                const isToday = timestamp.toDateString() === now.toDateString();
+                const isThisWeek = (now - timestamp) <= (7 * 24 * 60 * 60 * 1000);
+                const isFavorite = card.classList.contains('favorite');
+                
+                switch (filter) {
+                    case 'all':
+                        isVisible = true;
+                        break;
+                    case 'favorites':
+                        isVisible = isFavorite;
+                        break;
+                    case 'today':
+                        isVisible = isToday;
+                        break;
+                    case 'week':
+                        isVisible = isThisWeek;
+                        break;
+                }
+                
+                if (isVisible) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            toggleEmptyState(visibleCount === 0);
+        }
+
+        function toggleEmptyState(show) {
+            const emptyState = document.getElementById('emptyState');
+            const historyList = document.getElementById('historyList');
+            
+            if (show) {
+                emptyState.style.display = 'block';
+                historyList.style.display = 'none';
+            } else {
+                emptyState.style.display = 'none';
+                historyList.style.display = 'block';
+            }
+        }
+
+        function toggleFavorite(button, event) {
+            event.stopPropagation();
+            const card = button.closest('.history-card');
+            
+            button.classList.toggle('active');
+            card.classList.toggle('favorite');
+            
+            // Update heart icon
+            const icon = button.querySelector('svg');
+            if (button.classList.contains('active')) {
+                icon.setAttribute('fill', 'currentColor');
+            } else {
+                icon.setAttribute('fill', 'none');
+            }
+            
+            // Animate
+            anime({
+                targets: button,
+                scale: [1, 1.3, 1],
+                duration: 300,
+                easing: 'easeInOutQuad'
+            });
+            
+            // Update stats
+            loadHistoryStats();
+        }
+
+        function playAudio(button, event) {
+            event.stopPropagation();
+            const originalText = button.textContent;
+            
+            button.textContent = '⏸️ Playing...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.disabled = false;
+            }, 2000);
+            
+            // Animate button
+            anime({
+                targets: button,
+                scale: [1, 1.1, 1],
+                duration: 200,
+                easing: 'easeInOutQuad'
+            });
+        }
+
+        function copyText(button, event) {
+            event.stopPropagation();
+            const card = button.closest('.history-card');
+            const translatedText = card.querySelector('.text-lg').textContent;
+            
+            navigator.clipboard.writeText(translatedText).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✅ Copied!';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            });
+            
+            // Animate button
+            anime({
+                targets: button,
+                scale: [1, 1.1, 1],
+                duration: 200,
+                easing: 'easeInOutQuad'
+            });
+        }
+
+        function shareTranslation(button, event) {
+            event.stopPropagation();
+            const card = button.closest('.history-card');
+            const originalText = card.querySelector('h3').textContent;
+            const translatedText = card.querySelector('.text-lg').textContent;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'VoiceTranslate - Translation',
+                    text: `"${originalText}" translates to "${translatedText}"`,
+                });
+            } else {
+                // Fallback - copy to clipboard
+                navigator.clipboard.writeText(`"${originalText}" translates to "${translatedText}"`);
+                const originalButtonText = button.textContent;
+                button.textContent = '✅ Copied!';
+                
+                setTimeout(() => {
+                    button.textContent = originalButtonText;
+                }, 2000);
+            }
+            
+            // Animate button
+            anime({
+                targets: button,
+                scale: [1, 1.1, 1],
+                duration: 200,
+                easing: 'easeInOutQuad'
+            });
+        }
+
+        function loadHistoryStats() {
+            const historyCards = document.querySelectorAll('.history-card');
+            const favoriteCards = document.querySelectorAll('.history-card.favorite');
+            
+            document.getElementById('totalTranslations').textContent = historyCards.length;
+            document.getElementById('favoriteCount').textContent = favoriteCards.length;
+            
+            // Calculate this week's translations
+            const now = new Date();
+            const thisWeekCards = Array.from(historyCards).filter(card => {
+                const timestamp = new Date(card.dataset.timestamp);
+                return (now - timestamp) <= (7 * 24 * 60 * 60 * 1000);
+            });
+            document.getElementById('thisWeekCount').textContent = thisWeekCards.length;
+        }
+
+        // Animate cards on load
+        anime({
+            targets: '.history-card',
+            translateY: [50, 0],
+            opacity: [0, 1],
+            duration: 600,
+            delay: anime.stagger(100),
+            easing: 'easeOutQuart'
+        });
+
+        // Animate stats
+        anime({
+            targets: '.stat-number',
+            innerHTML: [0, (el) => el.innerHTML],
+            duration: 1000,
+            round: 1,
+            easing: 'easeOutQuart'
+        });
+    </script>
+</body>
+</html>

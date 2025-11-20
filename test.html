@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Translator Test</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .pass {
+            background: #d4edda;
+            color: #155724;
+        }
+        .fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Voice Translator App - Test Page</h1>
+    
+    <div class="test-section">
+        <h2>Browser Support Test</h2>
+        <div id="browserSupport"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Microphone Permission Test</h2>
+        <button onclick="testMicrophone()">Test Microphone Access</button>
+        <div id="microphoneResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Speech Recognition Test</h2>
+        <button onclick="testSpeechRecognition()">Test Speech Recognition</button>
+        <div id="speechResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Text-to-Speech Test</h2>
+        <button onclick="testTextToSpeech()">Test Text-to-Speech</button>
+        <div id="ttsResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Local Storage Test</h2>
+        <button onclick="testLocalStorage()">Test Local Storage</button>
+        <div id="storageResult"></div>
+    </div>
+
+    <script>
+        // Test browser support
+        function testBrowserSupport() {
+            const support = {
+                speechRecognition: 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window,
+                getUserMedia: navigator.mediaDevices && navigator.mediaDevices.getUserMedia,
+                speechSynthesis: 'speechSynthesis' in window,
+                localStorage: 'localStorage' in window,
+                audioContext: 'AudioContext' in window || 'webkitAudioContext' in window
+            };
+            
+            const result = document.getElementById('browserSupport');
+            let html = '';
+            
+            Object.keys(support).forEach(feature => {
+                const status = support[feature] ? 'pass' : 'fail';
+                const statusText = support[feature] ? 'Supported' : 'Not Supported';
+                html += `<div class="test-result ${status}">${feature}: ${statusText}</div>`;
+            });
+            
+            result.innerHTML = html;
+        }
+        
+        // Test microphone access
+        async function testMicrophone() {
+            const result = document.getElementById('microphoneResult');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getTracks().forEach(track => track.stop());
+                result.innerHTML = '<div class="test-result pass">Microphone access granted</div>';
+            } catch (error) {
+                result.innerHTML = `<div class="test-result fail">Microphone access denied: ${error.message}</div>`;
+            }
+        }
+        
+        // Test speech recognition
+        function testSpeechRecognition() {
+            const result = document.getElementById('speechResult');
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                result.innerHTML = '<div class="test-result fail">Speech recognition not supported</div>';
+                return;
+            }
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            
+            recognition.onstart = () => {
+                result.innerHTML = '<div class="test-result pass">Speech recognition started</div>';
+            };
+            
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                result.innerHTML = `<div class="test-result pass">Recognized: "${transcript}"</div>`;
+            };
+            
+            recognition.onerror = (event) => {
+                result.innerHTML = `<div class="test-result fail">Speech recognition error: ${event.error}</div>`;
+            };
+            
+            recognition.start();
+        }
+        
+        // Test text-to-speech
+        function testTextToSpeech() {
+            const result = document.getElementById('ttsResult');
+            if (!('speechSynthesis' in window)) {
+                result.innerHTML = '<div class="test-result fail">Text-to-speech not supported</div>';
+                return;
+            }
+            
+            const utterance = new SpeechSynthesisUtterance('Hello, this is a test of the text-to-speech functionality.');
+            utterance.onstart = () => {
+                result.innerHTML = '<div class="test-result pass">Text-to-speech started</div>';
+            };
+            utterance.onend = () => {
+                result.innerHTML = '<div class="test-result pass">Text-to-speech completed</div>';
+            };
+            utterance.onerror = () => {
+                result.innerHTML = '<div class="test-result fail">Text-to-speech error</div>';
+            };
+            
+            speechSynthesis.speak(utterance);
+        }
+        
+        // Test local storage
+        function testLocalStorage() {
+            const result = document.getElementById('storageResult');
+            try {
+                const testKey = 'test_key';
+                const testValue = 'test_value';
+                localStorage.setItem(testKey, testValue);
+                const retrieved = localStorage.getItem(testKey);
+                localStorage.removeItem(testKey);
+                
+                if (retrieved === testValue) {
+                    result.innerHTML = '<div class="test-result pass">Local storage working</div>';
+                } else {
+                    result.innerHTML = '<div class="test-result fail">Local storage not working</div>';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="test-result fail">Local storage error: ${error.message}</div>`;
+            }
+        }
+        
+        // Run tests on page load
+        window.addEventListener('load', () => {
+            testBrowserSupport();
+        });
+    </script>
+</body>
+</html>
